@@ -1,0 +1,278 @@
+\documentclass[a4paper,10pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{bm}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{algorithm}
+\usepackage{listings}
+\usepackage[noend]{algpseudocode}
+\usepackage[english,russian]{babel}
+
+
+\title{Течение несжимаемой жидкости}
+\author{Захаров ПЕ}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+...
+\end{abstract}
+
+
+
+\chapter{Стационарное течение несжимаемой жидкости}
+
+\section*{Введение}
+Рассматривается численное моделирование стационарного течения несжимаемой жидкости. 
+
+\section{Математические модели описания течений несжимаемой жидкости}
+
+\subsection{Стационарное уравнение Навье-Стокса}
+
+Течение жидкости описывается системой уравнений состоящей из уравнения для момента движения и уравнения неразрывности. Для стационарного течения несжимаемой жидкости остануться следующие уравнения в области $\Omega$
+\begin{equation}
+  \rho \,\mathcal{C}(\bm{u})
+- \nabla \cdot \sigma(\bm{u}, p)
+= \rho \bm{f},
+\label{eq:navier-stokes}
+\end{equation}
+\begin{equation}
+\nabla \cdot \bm{u} = 0,
+\label{eq:incompressibility}
+\end{equation}
+где $\rho$ --- плотность, $\bm{u}(\bm{x}, t)$ --- скорость жидкости, $\mathcal{C}(\bm{u})$ --- конвекция скорости, $\nabla$ --- оператор набла, $\sigma(\bm{u}, p)=2 \mu \epsilon(\bm{u}) - p I$ --- тензор напряжения, $\mu$ --- вязкость, $\epsilon(\bm{u}) = \frac{1}{2}\left(\nabla \bm{u} + \nabla \bm{u}^T \right)$ --- тензор скорости деформации, $p$ --- давление, $\bm{f}(\bm{x}, t)$ --- объемные силы.
+
+\subsection{Формы конвективной части}
+
+Конвективную часть уравнения $\mathcal{C}(\bm{u})$ можно описывать в четырех различных формах, которые идентичны для непрерывных дифференциальных операторов, но различаются для дискретных операторов:
+\begin{itemize}
+\item $\mathcal{C}(\bm{u}) = \nabla \cdot \left(\bm{u} \otimes \bm{u} \right)$ --- дивергентная форма, где $\otimes$ --- тензорное произведение;
+\item $\mathcal{C}(\bm{u}) = \bm{u} \cdot \nabla \bm{u}$ --- адвективная форма;
+\item $\mathcal{C}(\bm{u}) = \frac{1}{2}\left(\nabla \cdot \left(\bm{u} \otimes \bm{u} \right) + \bm{u} \cdot \nabla \bm{u} \right)$ --- кососимметричная форма;
+\item $\mathcal{C}(\bm{u}) = \left( \nabla \times \bm{u} \right) \times \bm{u} + \frac{1}{2} \nabla \left(\bm{u} \cdot \bm{u} \right) $ --- ротационная форма (rotation form), где для трехмерной области $\times$ --- векторное произведение, а для двумерной области $\nabla \times \bm{u} := -\frac{\partial u_1}{\partial x_2} + \frac{\partial u_2}{\partial x_1}$ и $a \times \bm{u} := (-a u_2, a u_1)^T$ для скаляра $a$.
+\end{itemize}
+
+\subsection{Граничные условия}
+Система уравнений может быть дополнена следующими граничными условиями
+\begin{itemize}
+\item тверая стенка $\bm{u}(\bm{x}, t) = (0, 0)$;
+\item периодические граничные условия $\bm{u}(\bm{x}, t) = \bm{u}(\bm{x} + \bm{x}_{period}, t)$;
+\item условие симметрии;
+\item условие на входе;
+\item условие на выходе;
+\end{itemize}
+
+!!! более подробно каждый вариант граничного условия
+
+\subsection{Турбулентные течения}
+...
+
+\section{Вычислительный алгоритм}
+
+\subsection{Конечно-элементная аппроксимация}
+
+Для описания вариацонной формулировки уравнения умножаем на тестовые функции, итегрируем по области и понижаем порядок производных
+\begin{equation}
+\begin{gathered}
+F = \int_\Omega \rho \frac{\bm{u}^{n+1} - \bm{u}^n}{\tau} \cdot \bm{v} \;{\rm d}\bm{x}
+ + \int_\Omega \rho \,\mathcal{C}(\bm{u}^{n+1}) \cdot \bm{v} \;{\rm d}\bm{x} \\
+ + \int_\Omega \sigma(\bm{u}^{n+1}, p^{n+1}) \cdot \epsilon(\bm{v}) \;{\rm d}\bm{x} 
+ - \int_{\partial \Omega} \sigma(\bm{u}^{n+1}, p^{n+1}) \cdot \bm{v} \;{\rm d}\bm{s} \\
+ - \int_\Omega \rho \bm{f}^{n+1} \cdot \bm{v} \;{\rm d}\bm{x} 
+ + \nabla \cdot \bm{u}^{n+1} q \;{\rm d}\bm{x} = 0,
+\end{gathered}
+\label{eq:nonlinear-form}
+\end{equation}
+где $\bm{u}^{n+1} \in V, p^{n+1} \in Q, \bm{v} \in \widehat{V}, q \in \widehat{Q}$.
+
+Для аппроксимации скорости используется кусочно-квадратичные функции, а для давления --- кусочно-линейные функции, данная комбинация элементов известна как элементы Тэйлор-Худа.
+
+\subsection{Численное решение дискретной задачи}
+
+Рассмотрим стационарную задачу в единичном квадрате $\Omega=(0,1)^2$ с точным решением
+\begin{equation}
+\begin{gathered}
+\bm{u}_e = \left(80 e^{x_1}(x_1 - 1)^2 x_1^2 x_2 (x_2 -  1) (2 x_2 - 1),\right.\\
+\left. -40 e^{x_1} (x_1 - 1) x_1 (x_1 (3 + x_1) - 2) (x_2-1)^2 x_2^2\right), \\
+p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^2 - x_2)) \\
++ 2 x_1 (-228 + (x_2^2 - x_2)) + 2 x_1^3 (-36 + x_2^2 - x_2)) + x_1^4 (12 + (x_2^2 - x_2))))).
+\end{gathered}
+\label{eq:shifted-vortex}
+\end{equation}
+Возьмем следующие параметры модели
+\[
+\rho = 1, \quad \mu = 0.01, \quad \bm{f} = \rho \,\mathcal{C}(\bm{u}_e) - \nabla \cdot \epsilon(\bm{u}_e, p_e).
+\]
+На рис. \ref{fig:shifted-vortex-u}, \ref{fig:shifted-vortex-p} показаны точные решения задачи.
+%\begin{figure}[h]
+%\centering
+%\includegraphics[width=1.0\linewidth]{shifted-vortex/mesh.png}
+%\label{fig:mesh8}
+%\caption{Вычислительная сетка $8 \times 8$}
+%\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.49\linewidth]{shifted-vortex/u.png}
+\includegraphics[width=0.49\linewidth]{shifted-vortex/p.png}
+\label{fig:shifted-vortex}
+\caption{Поле скорости и распределение давления}
+\end{figure}
+
+\section{Программная реализация}
+...
+
+\subsection{Общее описание}
+...
+
+\subsection{Структура ПО}
+...
+
+\subsection{Ключевые элементы (описание классов)}
+...
+
+\subsection{Листинг программы}
+...
+
+\section{Тестирование ПО}
+...
+
+\subsection{Тестовые задачи (для демонстрации сходимости в зависимости от вычислительных параметров, ...)}
+...
+
+\subsection{Сходимость аппроксимации по пространству}
+
+Для исследования численного решения от размера вычислительной сетки рассматриваем последовательность сеток: $8\times8$, $16\times16$, $32\times32$, $64\times64$, $128\times128$. Сравниваются различные нормы погрешности скорости и давления: 
+\[
+\left\Vert \bm{u} - \bm{u}_e \right\Vert_{L^2}, \quad
+\left\Vert \bm{u} - \bm{u}_e \right\Vert_{L^\infty}, \quad
+\left\Vert \bm{u} - \bm{u}_e \right\Vert_{H^{div}_0},
+\]
+\[
+\left\Vert p - p_e \right\Vert_{L^2}, \quad
+\left\Vert p - p_e \right\Vert_{L^\infty}, \quad
+\left\Vert p - p_e \right\Vert_{H^1_0}.
+\]
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[scale=1]
+\begin{axis}[
+	xmode=log,
+	ymode=log,
+    ylabel={$\varepsilon$},
+    xlabel=$N$,
+    grid=major,
+    legend pos=north east]
+    \addplot[mark=*,solid] table[y=eul2]{shifted-vortex/meshes.txt};
+    \addplot[mark=*,dashed] table[y=eumax]{shifted-vortex/meshes.txt};
+    \addplot[mark=*,dotted] table[y=euhd0]{shifted-vortex/meshes.txt};
+    \addlegendentry{$L^2$}
+    \addlegendentry{$L^\infty$}
+    \addlegendentry{$H^{div}_0$}
+\end{axis}
+\end{tikzpicture}
+\caption{Зависимость нормы погрешности скорости от размера сетки $N \times N$}
+\label{fig:shifted-vortex-meshes-u}
+\end{figure}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[scale=1]
+\begin{axis}[
+	xmode=log,
+	ymode=log,
+    ylabel={$\varepsilon$},
+    xlabel=$N$,
+    grid=major,
+    legend pos=north east]
+    \addplot[mark=*,solid] table[y=epl2]{shifted-vortex/meshes.txt};
+    \addplot[mark=*,dashed] table[y=epmax]{shifted-vortex/meshes.txt};
+    \addplot[mark=*,dotted] table[y=eph10]{shifted-vortex/meshes.txt};
+    \addlegendentry{$L^2$}
+    \addlegendentry{$L^\infty$}
+    \addlegendentry{$H^1_0$}
+\end{axis}
+\end{tikzpicture}
+\caption{Зависимость нормы погрешности давления от размера сетки $N \times N$}
+\label{fig:shifted-vortex-meshes-p}
+\end{figure}
+
+\subsection{Прямые линейные решатели}
+
+Из сравнения прямых решателей (см. рис. \ref{fig:direct-solvers}) наилучшее время показал MUMPS, который имеет параллельное решение системы. На рис. \ref{fig:mumps-parallel} приводится сравнение времени параллельного решения решателем MUMPS для вычислительных сеток $128\times128$ и $256\times256$.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[scale=1]
+\begin{axis}[
+	xmode=log,
+	ymode=log,
+    ylabel={$t, s$},
+    xlabel=$N$,
+    grid=major,
+    legend pos=north west]
+    \addplot[mark=*,solid] table[y=mumps]{shifted-vortex/direct-solvers.txt};
+    \addplot[mark=*,dashed] table[y=petsc]{shifted-vortex/direct-solvers.txt};
+    \addplot[mark=*,dashdotted] table[y=umfpack]{shifted-vortex/direct-solvers.txt};
+    \addplot[mark=*,dotted] table[y=superlu]{shifted-vortex/direct-solvers.txt};
+    \addlegendentry{MUMPS}
+    \addlegendentry{PETSc}
+    \addlegendentry{UMFPack}
+    \addlegendentry{SuperLU}
+\end{axis}
+\end{tikzpicture}
+\caption{Время решения прямых решателей от размера сетки $N \times N$}
+\label{fig:direct-solvers}
+\end{figure}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[scale=1]
+\begin{axis}[
+	xmode=log,
+	ymode=log,
+    ylabel={$t, s$},
+    xlabel=$P$,
+    grid=major,
+    legend pos=north east]
+    \addplot[mark=*,solid] table[y=N128]{shifted-vortex/mumps-parallel.txt};
+    \addplot[mark=*,dashed] table[y=N256]{shifted-vortex/mumps-parallel.txt};
+    \addplot[mark=*,dotted] table[y=N512]{shifted-vortex/mumps-parallel.txt};
+    \addlegendentry{$N=128$}
+    \addlegendentry{$N=256$}
+    \addlegendentry{$N=512$}
+\end{axis}
+\end{tikzpicture}
+\caption{Время решения решателя MUMPS от количества процессов $P$}
+\label{fig:mumps-parallel}
+\end{figure}
+
+\subsection{Итерационные линейные решатели}
+...
+
+\subsection{Преобуславливатели линейных решателей}
+...
+
+\subsection{Результаты по параллелизации}
+...
+
+
+\section{Верификация ПО}
+...
+
+\subsection{Матрица верификации (общее описание набор задач)}
+...
+
+\subsection{Задача 1}
+...
+
+
+%\bibliographystyle{unsrt}
+%\bibliography{literature}
+
+\end{document}
