@@ -15,5 +15,6 @@ class ChannelFlow(BaseProblem):
         self.ud = [
             (Constant((0, 0)), mesh.walls),
             (Expression(mesh.profile, degree=2), mesh.inflow),
+            (Constant(0), mesh.symm, 1),
+            (Constant(0), mesh.outflow, 1)
         ]
-        self.ud1 = [(Constant(0), mesh.symm)]

@@ -10,6 +10,6 @@ class DynamicVortex(BaseProblem):
         p = dict(
             ue = ('(1+mu*t)*2*x[0]*x[0]*(x[0]-1)*(x[0]-1)*x[1]*(2*x[1]-1)*(x[1]-1)', '-(1+mu*t)*2*x[0]*(2*x[0]-1)*(x[0]-1)*x[1]*x[1]*(x[1]-1)*(x[1]-1)'),
             pe = 'rho*x[1]',
-            ce = 'rho*0.5',
+            pa = 'rho*0.5',
         )
         super(DynamicVortex, self).__init__(**{**p, **params})

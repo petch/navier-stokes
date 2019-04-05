@@ -43,9 +43,9 @@ class Decoupled(BaseSolver):
             assign(self.pn, pe)
         
         def step():
-            solve(a1 == L1, self.u_, bcu, solver_parameters=solver_parameters)
-            solve(a2 == L2, self.p_, bcp, solver_parameters=solver_parameters)
-            solve(a3 == L3, self.u_,      solver_parameters=solver_parameters)
+            solve(a1 == L1, self.u_, bcu, solver_parameters=self.solver_parameters)
+            solve(a2 == L2, self.p_, bcp, solver_parameters=self.solver_parameters)
+            solve(a3 == L3, self.u_,      solver_parameters=self.solver_parameters)
 
             self.p_.vector()[:] -= assemble(self.p_*dx) - assemble(ce*dx)
 

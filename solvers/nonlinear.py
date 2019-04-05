@@ -13,13 +13,14 @@ class Nonlinear(Coupled):
     def forms(self):
         problem = self.problem
         tau, rho, mu, f, n, ce, ds = problem.tau, problem.rho, problem.mu, problem.f, problem.n, problem.ce, problem.ds
-        u_, p_, v, q, un, pn = self.u_, self.p_, self.v, self.q, self.un, self.pn
+        u_, p_, c_, v, q, r, un, pn, cn = self.u_, self.p_, self.c_, self.v, self.q, self.r, self.un, self.pn, self.cn
         
         F = rho*dot(problem.convection(u_, u_), v)*dx \
           + inner(problem.stress(u_, p_), sym(nabla_grad(v)))*dx \
           - dot(dot(problem.stress(u_, p_), n), v)*ds \
           - dot(f, v)*dx \
-          + dot(div(u_), q)*dx
+          + dot(div(u_), q)*dx \
+          + (p_ - ce)*r*dx + c_*q*dx
         if not self.stationary:
             F += rho/tau*dot(u_ - un, v)*dx
 

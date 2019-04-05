@@ -10,7 +10,7 @@ class PoiseuilleFlow(BaseProblem):
         p = dict(
             ue = ('0.5/mu*x[1]*(1-x[1])', '0'),
             pe = '1.0-x[0]',
-            ce = '0.5',
+            pa = '0.5',
             ud = [(Constant((0, 0)), 'near(x[1], 0) || near(x[1], 1)')],
             pd = [(Constant(1), 'near(x[0], 0)'), (Constant(0), 'near(x[0], 1)')]
         )

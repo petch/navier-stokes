@@ -19,6 +19,7 @@ def run(params, **vary):
         return
     key, values = vary.popitem()
     title = params.get('title', '')
+    p = params.copy()
     for i in range(len(values)):
         v = values[i]
         if isinstance(v, int) or isinstance(v, float):
@@ -29,7 +30,7 @@ def run(params, **vary):
             t = v.__name__
         else:
             t = f'{key.title()}{i}'
-        params['title'] = f'{title}{t}'
-        params[key] = v
-        run(params, **vary)
+        p['title'] = f'{title}{t}'
+        p[key] = v
+        run(p, **vary)
 

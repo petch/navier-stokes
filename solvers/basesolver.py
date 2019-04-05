@@ -58,6 +58,7 @@ class BaseSolver(object):
 
     def simulate(self, step):
         sys.stdout = Logger(f'{self.path}!out.txt', self.level)
+        print(f'# Solving {self.title}')
         problem = self.problem
 
         fu  = XDMFFile(f'{self.path}u.xdmf')
