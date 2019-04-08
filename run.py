@@ -5,9 +5,9 @@ from meshes import *
 params = dict(
     stationary = True,
     solver_class = Nonlinear,
-    problem_class = ChannelFlow,#ShiftedVortex, 
+    problem_class = ChannelFlow,#ShiftedVortex,
     level = LogLevel.WARNING,
-    mesh = ChannelSymm(32),#UnitSquareMesh(16, 16, 'crossed'), #
+    mesh = ChannelThin(32),#Square(16),
     linear_solver = 'mumps',
     preconditioner = 'none'
 )

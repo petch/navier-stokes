@@ -4,17 +4,22 @@ __copyright__ = "Copyright (C) 2019 " + __author__
 __license__  = "CC0"
 
 from problems.baseproblem import *
+from meshes import Bound
 
 class ChannelFlow(BaseProblem):
     def __init__(self, **params):
         p = dict(
-            f  = Constant((0, 0)),
+            ud = [
+                (Bound.TOP, Constant((0, 0))),
+                (Bound.OTHER, Constant((0, 0))),
+                (Bound.LEFT, Expression(('(0.2-x[1])*(0.2+x[1])/0.2/0.2', '0'), degree=2)),
+                (Bound.BOTTOM, Constant(0), 1),
+            ],
+            un = [
+                (Bound.RIGHT, Constant((0, 0)))
+            ],
+            pd = [
+                (Bound.RIGHT, Constant(0))
+            ]
         )
         super(ChannelFlow, self).__init__(**{**p, **params})
-        mesh = self.mesh
-        self.ud = [
-            (Constant((0, 0)), mesh.walls),
-            (Expression(mesh.profile, degree=2), mesh.inflow),
-            (Constant(0), mesh.symm, 1),
-            (Constant(0), mesh.outflow, 1)
-        ]

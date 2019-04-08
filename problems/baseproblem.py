@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2019 " + __author__
 __license__  = "CC0"
 
 from dolfin import *
+from meshes import *
 
 class BaseProblem(object):
     def __init__(self, **params):
@@ -13,12 +14,13 @@ class BaseProblem(object):
         self.T  = params.get('T', 10.0)
         self.dt = params.get('dt', 1.0)
 
-        self.mesh = params.get('mesh', UnitSquareMesh(16, 16, 'crossed'))
-        self.n    = FacetNormal(self.mesh)
-        if hasattr(self.mesh, 'bounds'):
-            self.ds = Measure('ds', domain=self.mesh, subdomain_data=self.mesh.bounds)
-        else:
-            self.ds = ds
+        self.mesh    = params.get('mesh', Square(16))
+        self.domains = self.mesh.domains
+        self.bounds  = self.mesh.bounds
+
+        self.dx = Measure('dx', domain=self.mesh, subdomain_data=self.domains)
+        self.ds = Measure('ds', domain=self.mesh, subdomain_data=self.bounds)
+        self.n  = FacetNormal(self.mesh)
 
         self.tau = Constant(self.dt)
         self.rho = params.get('rho', Constant(1))
@@ -28,13 +30,12 @@ class BaseProblem(object):
         self.pe = Expression(params.get('pe', '0'), degree=1, domain=self.mesh, rho=self.rho, mu=self.mu, t=self.t)
         self.ce = Expression(params.get('ce', '0'), degree=1, domain=self.mesh, rho=self.rho, mu=self.mu, t=self.t)
         
-        if self.ue is None or self.pe is None:
-            self.f = params.get('f', Constant((0, 0)))
-        else:
-            self.f = self.source(self.ue, self.pe)
+        self.f = params.get('f', self.source(self.ue, self.pe))
 
         self.ud = params.get('ud', [(self.ue, 'on_boundary')])
         self.pd = params.get('pd', [])
+        self.un = params.get('un', [])
+        self.pn = params.get('pn', [])
 
     def divergence(self, u1, u2):
         return div(outer(u1, u2))
@@ -50,6 +51,9 @@ class BaseProblem(object):
 
     def stress(self, u, p):
         return 2*self.mu*sym(nabla_grad(u)) - p*Identity(len(u))
+
+    def stress_n(self, u, p, n, g):
+        return dot(self.mu*(nabla_grad(u)) - p*Identity(len(u)), n) + self.mu*g
 
     def source(self, u, p):
         return self.rho*self.convection(u, u) - div(self.stress(u, p))
