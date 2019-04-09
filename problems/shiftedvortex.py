@@ -11,5 +11,12 @@ class ShiftedVortex(BaseProblem):
             mu = Constant(0.01),
             ue = ('40*2*exp(x[0])*pow(x[0]-1,2)*pow(x[0],2)*x[1]*(x[1]-1)*(2*x[1]-1)', '-40*exp(x[0])*(x[0]-1)*x[0]*(x[0]*(3+x[0])-2)*pow(x[1]-1,2)*pow(x[1],2)'),
             pe = '10*(-424+156*exp(1)+(x[1]*x[1]-x[1])*(-456+exp(x[0])*(456+pow(x[0],2)*(228-5*(x[1]*x[1]-x[1]))+2*x[0]*(-228+(x[1]*x[1]-x[1]))+2*pow(x[0],3)*(-36+(x[1]*x[1]-x[1]))+pow(x[0],4)*(12+(x[1]*x[1]-x[1])))))',
+            ce = '0',
         )
         super(ShiftedVortex, self).__init__(**{**p, **params})
+        self.ud = [
+            (Bound.LEFT,   self.ue),
+            (Bound.RIGHT,  self.ue),
+            (Bound.TOP,    self.ue),
+            (Bound.BOTTOM, self.ue),
+        ]

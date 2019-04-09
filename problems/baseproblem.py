@@ -32,10 +32,25 @@ class BaseProblem(object):
         
         self.f = params.get('f', self.source(self.ue, self.pe))
 
-        self.ud = params.get('ud', [(self.ue, 'on_boundary')])
+        self.ud = params.get('ud', [])
         self.pd = params.get('pd', [])
         self.un = params.get('un', [])
-        self.pn = params.get('pn', [])
+
+    def dirichlet_u(self, V):
+        bcs = []
+        for bc in self.ud:
+            space = V if len(bc) < 3 else V.sub(bc[2])
+            bcs.append(DirichletBC(space, bc[1], self.bounds, bc[0]))
+        return bcs
+
+    def dirichlet_p(self, Q):
+        bcs = []
+        for bc in self.pd:
+            bcs.append(DirichletBC(Q, bc[1], self.bounds, bc[0]))
+        return bcs
+
+    def constrained(self):
+        return len(self.pd) == 0
 
     def divergence(self, u1, u2):
         return div(outer(u1, u2))
@@ -52,8 +67,17 @@ class BaseProblem(object):
     def stress(self, u, p):
         return 2*self.mu*sym(nabla_grad(u)) - p*Identity(len(u))
 
-    def stress_n(self, u, p, n, g):
-        return dot(self.mu*(nabla_grad(u)) - p*Identity(len(u)), n) + self.mu*g
+    def stress_n(self, u, p, n, dun=None, dut=None):
+        sn = -dot(p*Identity(len(u)), n)
+        if dun is None:
+            sn += dot(self.mu*nabla_grad(u).T, n)
+        else:
+            sn += self.mu*dun
+        if dut is None:
+            sn += dot(self.mu*nabla_grad(u), n)
+        else:
+            sn += self.mu*dut
+        return sn
 
     def source(self, u, p):
         return self.rho*self.convection(u, u) - div(self.stress(u, p))

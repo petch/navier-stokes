@@ -13,8 +13,8 @@ solvers_list = [Nonlinear, Linear, IPCS, Duoglas]
 
 def run(params, **vary):
     if len(vary) == 0:
-        problem = params['problem_class'](**params)
-        solver  = params['solver_class'](problem, **params)
+        problem = params['problem'](**params)
+        solver  = params['solver'](problem, **params)
         solver.solve()
         return
     key, values = vary.popitem()
@@ -29,8 +29,8 @@ def run(params, **vary):
         elif inspect.isclass(v):
             t = v.__name__
         else:
-            t = f'{key.title()}{i}'
-        p['title'] = f'{title}{t}'
+            t = f'{i}'
+        p['title'] = f'{title}{key.title()}{t}'
         p[key] = v
         run(p, **vary)
 

@@ -10,5 +10,12 @@ class LucasFlow(BaseProblem):
         p = dict(
             ue = ('-cos(pi*x[0])/pi', '-x[1]*sin(pi*x[0])'),
             pe = '0',
+            ce = '0',
         )
         super(LucasFlow, self).__init__(**{**p, **params})
+        self.ud = [
+            (Bound.LEFT,   self.ue),
+            (Bound.RIGHT,  self.ue),
+            (Bound.TOP,    self.ue),
+            (Bound.BOTTOM, self.ue),
+        ]

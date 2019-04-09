@@ -10,8 +10,17 @@ class PoiseuilleFlow(BaseProblem):
         p = dict(
             ue = ('0.5/mu*x[1]*(1-x[1])', '0'),
             pe = '1.0-x[0]',
-            pa = '0.5',
-            ud = [(Constant((0, 0)), 'near(x[1], 0) || near(x[1], 1)')],
-            pd = [(Constant(1), 'near(x[0], 0)'), (Constant(0), 'near(x[0], 1)')]
         )
         super(PoiseuilleFlow, self).__init__(**{**p, **params})
+        self.ud = [
+            (Bound.TOP, Constant((0, 0))),
+            (Bound.BOTTOM, Constant((0, 0))),
+        ]
+        self.pd = [
+            (Bound.LEFT, Constant(1)),
+            (Bound.RIGHT, Constant(0)),
+        ]
+        self.un = [
+            (Bound.LEFT, Constant((0, 0)), None),
+            (Bound.RIGHT, Constant((0, 0)), None),
+        ]

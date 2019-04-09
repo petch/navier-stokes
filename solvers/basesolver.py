@@ -30,17 +30,17 @@ class Logger(object):
         self.log.flush()
 
 class BaseSolver(object):
-    def __init__(self, problem, **params):
-        self.problem = problem
+    def __init__(self, problem_data, **params):
+        self.problem = problem_data
 
         self.stationary = params.get('stationary', True)
         self.dudtmin    = params.get('dudtmin', 1e-9)
         self.dudtmax    = params.get('dudtmax', 1e+5)
 
         uf, uo, pf, po = params.get('elements', ('CG', 2, 'CG', 1))
-        self.ufe = VectorElement(uf, problem.mesh.ufl_cell(), uo)
-        self.pfe = FiniteElement(pf, problem.mesh.ufl_cell(), po)
-        self.rfe = FiniteElement('Real', problem.mesh.ufl_cell(), 0)
+        self.ufe = VectorElement(uf, self.problem.mesh.ufl_cell(), uo)
+        self.pfe = FiniteElement(pf, self.problem.mesh.ufl_cell(), po)
+        self.rfe = FiniteElement('Real', self.problem.mesh.ufl_cell(), 0)
 
         self.linear_solver     = params.get('linear_solver', 'default')
         self.preconditioner    = params.get('preconditioner', 'default')
@@ -48,9 +48,18 @@ class BaseSolver(object):
 
         self.level = params.get('level', LogLevel.WARNING)
         self.title = params.get('title', 'Default')
-        self.path  = params.get('path', f'results/{problem.__class__.__name__}/{self.title}/')
+        self.path  = params.get('path', f'results/{self.problem.__class__.__name__}/{self.title}/')
 
     def solve(self):
+        if self.problem.constrained():
+            self.solve_constrained()
+        else:
+            self.solve_unconstrained()
+
+    def solve_constrained(self):
+        raise NotImplementedError
+
+    def solve_unconstrained(self):
         raise NotImplementedError
 
     def forms(self):

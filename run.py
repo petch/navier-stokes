@@ -4,20 +4,17 @@ from meshes import *
 
 params = dict(
     stationary = True,
-    solver_class = Nonlinear,
-    problem_class = ChannelFlow,#ShiftedVortex,
+    solver = Nonlinear,
+    problem = PoiseuilleFlow,#ChannelFlow,ShiftedVortex,
     level = LogLevel.WARNING,
-    mesh = ChannelThin(32),#Square(16),
+    mesh = Square(16),#ChannelThin(32),
     linear_solver = 'mumps',
-    preconditioner = 'none'
+    preconditioner = 'none',
 )
 
-# print('Test convection')
 # run(params, convection = ['divergence', 'advective', 'skewsymmetric', 'rotation'])
-# print('Test solvers')
-# run(params, solver_class = solvers_list)
-# print('Test problems')
-# run(params, problem_class = problems_list)
+# run(params, solver = solvers_list)
+# run(params, problem = problems_list)
 
 run(params)
 

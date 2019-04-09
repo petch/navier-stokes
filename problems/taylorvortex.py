@@ -10,8 +10,6 @@ class TaylorVortex(BaseProblem):
         p = dict(
             ue = ('-cos(pi*x[0])*sin(pi*x[1])*exp(-2*pi*pi*mu*t)', 'sin(pi*x[0])*cos(pi*x[1])*exp(-2*pi*pi*mu*t)'),
             pe = '-0.25*rho*(cos(2*pi*x[0])+cos(2*pi*x[1]))*exp(-4*pi*pi*mu*t)',
-            mu = 0.01,
-            dt = 0.01,
-            T  = 0.1,
+            ce = '0',
         )
         super(TaylorVortex, self).__init__(**{**p, **params})
