@@ -46,47 +46,52 @@
 \nabla \cdot \bm{u} = 0,
 \label{eq:incompressibility}
 \end{equation}
-где $\rho$ --- плотность, $\bm{u}(\bm{x})$ --- скорость жидкости, $\mathcal{C}(\bm{u})$ --- конвекция скорости, $\nabla$ --- оператор набла, $\sigma(\bm{u}, p)=2 \mu \epsilon(\bm{u}) - p I$ --- тензор напряжения, $\mu$ --- вязкость, $\epsilon(\bm{u}) = \frac{1}{2}\left(\nabla \bm{u} + \nabla \bm{u}^T \right)$ --- тензор скорости деформации, $p$ --- давление, $I$ --- единичный оператор, $\bm{f}(\bm{x})$ --- объемные силы.
+где $\rho$ --- плотность, $\bm{u}(\bm{x})$ --- скорость жидкости, $\mathcal{C}(\bm{u})$ --- конвекция скорости, $\nabla$ --- оператор набла, $\cdot$ --- скалярное произведение, $\sigma(\bm{u}, p)=2 \mu \epsilon(\bm{u}) - p I$ --- тензор напряжения, $\mu$ --- вязкость, $\epsilon(\bm{u}) = \frac{1}{2}\left(\nabla \bm{u} + \nabla \bm{u}^T \right)$ --- тензор скорости деформации, $p$ --- давление, $I$ --- единичный оператор, $\bm{f}(\bm{x})$ --- объемные силы.
 
 \subsection{Формы конвективной части}
 
 Конвективную часть уравнения $\mathcal{C}(\bm{u})$ можно записывать в четырех различных формах, которые идентичны для непрерывных дифференциальных операторов, но различаются для дискретных операторов:
 \begin{itemize}
-\item $\nabla \cdot \left(\bm{u} \otimes \bm{u} \right)$ --- дивергентная форма, где $\otimes$ --- тензорное произведение;
+\item $\nabla \cdot \left(\bm{u} \otimes \bm{u} \right)$ --- дивергентная форма;
 \item $\bm{u} \cdot \nabla \bm{u}$ --- адвективная форма;
 \item $\frac{1}{2}\left(\nabla \cdot \left(\bm{u} \otimes \bm{u} \right) + \bm{u} \cdot \nabla \bm{u} \right)$ --- кососимметричная форма;
-\item $\left( \nabla \times \bm{u} \right) \times \bm{u} + \frac{1}{2} \nabla \left(\bm{u} \cdot \bm{u} \right) $ --- ротационная форма (rotation form), где для трехмерной области $\times$ --- векторное произведение, а для двумерной области $\nabla \times \bm{u} := -\frac{\partial u_1}{\partial x_2} + \frac{\partial u_2}{\partial x_1}$ и $a \times \bm{u} := (-a u_2, a u_1)^T$ для скаляра $a$.
+\item $\left( \nabla \times \bm{u} \right) \times \bm{u} + \frac{1}{2} \nabla \left(\bm{u} \cdot \bm{u} \right) $ --- ротационная форма (rotation form);
 \end{itemize}
+где $\otimes$ --- тензорное произведение, $\times$ --- векторное произведение для трехмерной области, а для двумерной области $\nabla \times \bm{u} := -\frac{\partial u_1}{\partial x_2} + \frac{\partial u_2}{\partial x_1}$ и $a \times \bm{u} := (-a u_2, a u_1)^T$ для скаляра $a$
+
 
 \subsection{Граничные условия}
 Для задач течения жидкости стандартными являются следующие граничные условия
 \begin{itemize}
 \item условие прилипания (noslip condition) $\bm{u}(\bm{x}, t) = (0, 0)$;
-\item условие скольжения или симметрии (slip condition) $\bm{u} \cdot \bm{n} = 0$
-\item условие на входе $\bm{u}(\bm{x}) = \bm{u}_{in}(\bm{x})$
-\item условие на выходе $\bm{u} \cdot \bm{\tau} = 0$;
-\item периодические граничные условия $\bm{u}(\bm{x}, t) = \bm{u}(\bm{x} + \bm{x}_{period}, t)$;
+\item условие скольжения или симметрии (slip condition) $\bm{u} \cdot \bm{n} = 0$;
+\item условие на входе $\bm{u}(\bm{x}) = \bm{u}_{in}(\bm{x})$;
+\item условие на выходе $p(\bm{x}) = p_{out}(\bm{x})$, $\nabla \bm{u} \cdot \bm{n} = 0$;
+\item периодические граничные условия $\bm{u}(\bm{x}) = \bm{u}(\bm{x} + \bm{x}_{period})$;
 \end{itemize}
-
-\subsection{Турбулентные течения}
-...
+где $\bm{n}$ --- внешняя нормаль границы. В некоторых задачах граничное условие для давления может не задаваться и тогда используется ограничение
+\[
+\int_\Omega p \; {\rm d}\bm{x} = 0,
+\]
+которое дает единственное решение для давления.
 
 \section{Вычислительный алгоритм}
 
 \subsection{Конечно-элементная аппроксимация}
 
-Для описания вариацонной формулировки уравнения умножаем на тестовые функции, итегрируем по области и понижаем порядок производных
+Для задачи без ограничения для давления используется стандартная вариационная задача.
+Для описания вариацонной формулировки уравнений умножаем на тестовые функции, итегрируем по области и понижаем порядок производных. Вариационная задача заключается в нахождении функций $\bm{u} \in V, p \in Q$, которые удовлетворяют
 \begin{equation}
 \begin{gathered}
-F = \int_\Omega \rho \,\mathcal{C}(\bm{u}^{n+1}) \cdot \bm{v} \;{\rm d}\bm{x} \\
- + \int_\Omega \sigma(\bm{u}^{n+1}, p^{n+1}) \cdot \epsilon(\bm{v}) \;{\rm d}\bm{x} 
- - \int_{\partial \Omega} \sigma(\bm{u}^{n+1}, p^{n+1}) \cdot \bm{v} \;{\rm d}\bm{s} \\
- - \int_\Omega \rho \bm{f}^{n+1} \cdot \bm{v} \;{\rm d}\bm{x} 
- + \nabla \cdot \bm{u}^{n+1} q \;{\rm d}\bm{x} = 0,
+F = \int_\Omega \rho \,\mathcal{C}(\bm{u}) \cdot \bm{v} \;{\rm d}\bm{x} 
+ + \int_\Omega \sigma(\bm{u}, p) \cdot \epsilon(\bm{v}) \;{\rm d}\bm{x} \\
+ - \int_\Gamma ... \\
+ - \int_\Omega \rho \bm{f} \cdot \bm{v} \;{\rm d}\bm{x} 
+ + \nabla \cdot \bm{u} q \;{\rm d}\bm{x} = 0,
 \end{gathered}
 \label{eq:nonlinear-form}
 \end{equation}
-где $\bm{u}^{n+1} \in V, p^{n+1} \in Q, \bm{v} \in \widehat{V}, q \in \widehat{Q}$.
+где $\bm{u} \in V, p \in Q, \bm{v} \in \widehat{V}, q \in \widehat{Q}$.
 
 Для аппроксимации скорости используется кусочно-квадратичные функции, а для давления --- кусочно-линейные функции, данная комбинация элементов известна как элементы Тэйлор-Худа.
 

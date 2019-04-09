@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
         tree = QTreeWidget()
         tree.setHeaderHidden(True)
         
-        root, projects, files = next(os.walk('Projects'))
+        root, projects, files = next(os.walk('results'))
         for project in sorted(projects):
             item = QTreeWidgetItem([project])
             subroot, dirs, subfiles = next(os.walk(root + '/' + project))
