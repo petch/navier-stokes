@@ -61,7 +61,7 @@
 
 
 \subsection{Граничные условия}
-Для задач течения жидкости стандартными являются следующие граничные условия
+Обозначим границы где задаются условия Дирихле для скорости через $\Gamma_D$, а с условиями Неймана -- $\Gamma_N$. Для задач течения жидкости стандартными являются следующие граничные условия
 \begin{itemize}
 \item условие прилипания (noslip condition) $\bm{u}(\bm{x}, t) = (0, 0)$;
 \item условие скольжения или симметрии (slip condition) $\bm{u} \cdot \bm{n} = 0$;
@@ -69,33 +69,81 @@
 \item условие на выходе $p(\bm{x}) = p_{out}(\bm{x})$, $\nabla \bm{u} \cdot \bm{n} = 0$;
 \item периодические граничные условия $\bm{u}(\bm{x}) = \bm{u}(\bm{x} + \bm{x}_{period})$;
 \end{itemize}
-где $\bm{n}$ --- внешняя нормаль границы. В некоторых задачах граничное условие для давления может не задаваться и тогда используется ограничение
-\[
-\int_\Omega p \; {\rm d}\bm{x} = 0,
-\]
+где $\bm{n}$ --- внешняя нормаль границы. В некоторых задачах граничное условие для давления может не задаваться и тогда используется ограничение 
+\begin{equation}
+\int_\Omega p \; {\rm d}\bm{x} = p_{a},
+\label{eq:constrain}
+\end{equation}
 которое дает единственное решение для давления.
 
 \section{Вычислительный алгоритм}
 
-\subsection{Конечно-элементная аппроксимация}
+\subsection{Вариационная задача}
 
-Для задачи без ограничения для давления используется стандартная вариационная задача.
+Для задачи без ограничения для давления (\ref{eq:constrain})  используется стандартная вариационная задача. 
 Для описания вариацонной формулировки уравнений умножаем на тестовые функции, итегрируем по области и понижаем порядок производных. Вариационная задача заключается в нахождении функций $\bm{u} \in V, p \in Q$, которые удовлетворяют
 \begin{equation}
 \begin{gathered}
 F = \int_\Omega \rho \,\mathcal{C}(\bm{u}) \cdot \bm{v} \;{\rm d}\bm{x} 
  + \int_\Omega \sigma(\bm{u}, p) \cdot \epsilon(\bm{v}) \;{\rm d}\bm{x} \\
- - \int_\Gamma ... \\
+ - \int_{\Gamma_N} \mu \left(\nabla \bm{u}^T \cdot \bm{n} + \bm{g} + pI \cdot \bm{n} \right) \cdot \bm{v} \;{\rm d}\bm{s} \\
  - \int_\Omega \rho \bm{f} \cdot \bm{v} \;{\rm d}\bm{x} 
- + \nabla \cdot \bm{u} q \;{\rm d}\bm{x} = 0,
+ + \nabla \cdot \bm{u} \; q \;{\rm d}\bm{x} = 0, \quad \forall \bm{v} \in \widehat{V}, \forall q \in \widehat{Q},
 \end{gathered}
 \label{eq:nonlinear-form}
 \end{equation}
-где $\bm{u} \in V, p \in Q, \bm{v} \in \widehat{V}, q \in \widehat{Q}$.
+где $V, \widehat{V} = H^1(\Omega)$ --- пространства Соболева для векторных функций, которые удовлетворяют граничным условиям Дирихле для скорости, $Q, \widehat{Q} = L^2(\Omega)$ ---  квадратично интегрируемые пространства скалярных функций, которые удовлетворяют условиям Дирихле для давления.
 
-Для аппроксимации скорости используется кусочно-квадратичные функции, а для давления --- кусочно-линейные функции, данная комбинация элементов известна как элементы Тэйлор-Худа.
+\subsection{Ограничение для давления}
 
-\subsection{Численное решение дискретной задачи}
+Ограничение для давления добавляется в вариационную формулировку используя дополнительную неизвестную как множитель Лагранжа. Вариационная задача: нужно найти функции $\bm{u} \in V, p \in Q$, которые удовлетворяют
+\begin{equation}
+\begin{gathered}
+F = \int_\Omega \rho \,\mathcal{C}(\bm{u}) \cdot \bm{v} \;{\rm d}\bm{x} 
+ + \int_\Omega \sigma(\bm{u}, p) \cdot \epsilon(\bm{v}) \;{\rm d}\bm{x} \\
+ - \int_{\Gamma_N} \mu \left(\nabla \bm{u}^T \cdot \bm{n} + \bm{g} + pI \cdot \bm{n} \right) \cdot \bm{v} \;{\rm d}\bm{s} \\
+ - \int_\Omega \rho \bm{f} \cdot \bm{v} \;{\rm d}\bm{x} 
+ + \nabla \cdot \bm{u} \; q \;{\rm d}\bm{x} \\
+ \int_\Omega \left(p - p_a\right) r \;{\rm d}\bm{x} + \int_\Omega c q \;{\rm d}\bm{x} = 0, \quad \forall \bm{v} \in \widehat{V}, \forall q \in \widehat{Q}, \forall r \in R,
+\end{gathered}
+\label{eq:nonlinear-form-constrained}
+\end{equation}
+где $R$ --- множество действительных чисел.
+
+\subsection{Конечно-элементная аппроксимация}
+
+При дискретизации используются труегольные сетки для двумерных задач и тетраэдральные для трехмерных задач.
+Для аппроксимации скорости используется кусочно-квадратичные функции, а для давления --- кусочно-линейные функции, данная комбинация элементов известна как элементы Тэйлор-Худ.
+
+\section{Программная реализация}
+...
+
+\subsection{Общее описание}
+...
+
+\subsection{Структура ПО}
+...
+
+\subsection{Ключевые элементы (описание классов)}
+...
+
+\subsection{Листинг программы}
+...
+
+\section{Тестирование ПО}
+...
+
+\subsection{Тестовые задачи (для демонстрации сходимости в зависимости от вычислительных параметров, ...)}
+...
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.49\linewidth]{shifted-vortex/u.png}
+\includegraphics[width=0.49\linewidth]{shifted-vortex/p.png}
+\label{fig:shifted-vortex}
+\caption{Поле скорости и распределение давления}
+\end{figure}
 
 Рассмотрим стационарную задачу в единичном квадрате $\Omega=(0,1)^2$ с точным решением
 \begin{equation}
@@ -118,35 +166,6 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
 %\label{fig:mesh8}
 %\caption{Вычислительная сетка $8 \times 8$}
 %\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[width=0.49\linewidth]{shifted-vortex/u.png}
-\includegraphics[width=0.49\linewidth]{shifted-vortex/p.png}
-\label{fig:shifted-vortex}
-\caption{Поле скорости и распределение давления}
-\end{figure}
-
-\section{Программная реализация}
-...
-
-\subsection{Общее описание}
-...
-
-\subsection{Структура ПО}
-...
-
-\subsection{Ключевые элементы (описание классов)}
-...
-
-\subsection{Листинг программы}
-...
-
-\section{Тестирование ПО}
-...
-
-\subsection{Тестовые задачи (для демонстрации сходимости в зависимости от вычислительных параметров, ...)}
-...
 
 \subsection{Сходимость аппроксимации по пространству}
 

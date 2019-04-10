@@ -5,11 +5,12 @@ from meshes import *
 params = dict(
     stationary = True,
     solver = Nonlinear,
-    problem = PoiseuilleFlow,#ChannelFlow,ShiftedVortex,
+    problem = ShiftedVortex,#ChannelFlow,PoiseuilleFlow,
     level = LogLevel.WARNING,
     mesh = Square(16),#ChannelThin(32),
     linear_solver = 'mumps',
     preconditioner = 'none',
+    elements = ('CR', 1, 'DG', 0),
 )
 
 # run(params, convection = ['divergence', 'advective', 'skewsymmetric', 'rotation'])
