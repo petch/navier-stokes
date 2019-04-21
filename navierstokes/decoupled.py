@@ -1,9 +1,4 @@
-__author__ = "Petr Zakharov <zapetch@gmail.com>"
-__date__ = "2019-03-29"
-__copyright__ = "Copyright (C) 2019 " + __author__
-__license__  = "CC0"
-
-from solvers.basesolver import *
+from .basesolver import *
 
 class Decoupled(BaseSolver):
     def solve_unconstrained(self):
@@ -30,7 +25,7 @@ class Decoupled(BaseSolver):
 
         ue = project(problem.ue, self.V)
         pe = project(problem.pe, self.Q)
-        if not self.stationary:
+        if not self.problem.stationary:
             assign(self.u_, ue)
             assign(self.p_, pe)
             assign(self.u0, ue)
@@ -46,7 +41,7 @@ class Decoupled(BaseSolver):
             self.u0.assign(self.u_)
             self.p0.assign(self.p_)
 
-            if not self.stationary:
+            if not self.problem.stationary:
                 problem.ue.t = problem.t
                 ue.assign(problem.ue)
                 problem.pe.t = problem.t
@@ -93,7 +88,7 @@ class Decoupled(BaseSolver):
         pe = project(problem.pe, self.Q.collapse())
         ce = project(problem.ce, self.R.collapse())
         assign(we, [pe, ce])
-        if not self.stationary:
+        if not self.problem.stationary:
             assign(self.u_, ue)
             assign(self.u0, ue)
             assign(self.w_, we)
@@ -109,7 +104,7 @@ class Decoupled(BaseSolver):
             self.u0.assign(self.u_)
             self.w0.assign(self.w_)
 
-            if not self.stationary:
+            if not self.problem.stationary:
                 problem.ue.t = problem.t
                 ue.assign(problem.ue)
                 problem.pe.t = problem.t

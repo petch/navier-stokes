@@ -1,25 +1,9 @@
-from solvers import *
-from problems import *
-from meshes import *
+# from problems.channelflow.simulation import *
+# from problems.dynamicvortex.simulation import *
+# from problems.kanflow.simulation import *
+# from problems.lucasflow.simulation import *
+# from problems.poiseuilleflow.simulation import *
+# from problems.shiftedvortex.simulation import *
+from problems.taylorvortex.simulation import *
+Simulation().run()
 
-params = dict(
-    stationary = True,
-    solver = Nonlinear,
-    problem = ShiftedVortex,#ChannelFlow,PoiseuilleFlow,
-    level = LogLevel.WARNING,
-    mesh = Square(16),#ChannelThin(32),
-    linear_solver = 'mumps',
-    preconditioner = 'none',
-    elements = ('CR', 1, 'DG', 0),
-)
-
-# run(params, convection = ['divergence', 'advective', 'skewsymmetric', 'rotation'])
-# run(params, solver = solvers_list)
-# run(params, problem = problems_list)
-
-run(params)
-
-# bicgstab, cg, gmres, minres, richardson, tfqmr
-# mumps, petsc, superlu, umfpack
-# amg, hypre_amg, hypre_euclid, hypre_parasails, icc, ilu, jacobi, none, petsc_amg, sor  
-# icc, jacobi, none, 
