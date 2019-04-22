@@ -1,5 +1,3 @@
-from navierstokes import *
-from .domain import *
 from .problem import *
 
 class Simulation(BaseSimulation):

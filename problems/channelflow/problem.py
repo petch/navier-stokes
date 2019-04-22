@@ -1,4 +1,4 @@
-from navierstokes import *
+from .domain import *
 
 class Problem(BaseProblem):
     defaults = {**BaseProblem.defaults, **dict(
@@ -24,4 +24,5 @@ class Problem(BaseProblem):
         ]
 
 if __name__ == '__main__':
+    Domain().generate()
     Nonlinear(Problem()).solve()

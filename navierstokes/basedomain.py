@@ -20,7 +20,7 @@ class BaseDomain(object):
     def geometry(self):
         raise NotImplementedError
 
-    def __init__(self, title='Default', **params):
+    def __init__(self, title='default', **params):
         self.title = title
         self.params = {**self.__class__.defaults, **params}
         self.__dict__.update(self.params)

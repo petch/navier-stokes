@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="navierstokes-petch",
-    version="0.0.5",
+    version="0.0.7",
     author="Petr Zakharov",
     author_email="zapetch@gmail.com",
-    description="Navier-Stokes equations and it solvers",
+    description="Navier-Stokes solvers and problems",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/petch/navier-stokes",

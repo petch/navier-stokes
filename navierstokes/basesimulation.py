@@ -5,8 +5,6 @@ from pprint import pformat
 class BaseSimulation(object):
     defaults = dict(
         level = LogLevel.WARNING,
-        dudtmin = 1e-9,
-        dudtmax = 1e+5,
     )
 
     def __init__(self):
@@ -31,15 +29,13 @@ class BaseSimulation(object):
         p = params.copy()
         for i in range(len(values)):
             v = values[i]
-            if isinstance(v, int) or isinstance(v, float):
+            if isinstance(v, int) or isinstance(v, float) or isinstance(v, str):
                 t = f'{v}'
-            elif isinstance(v, str):
-                t = f'{v.title()}'
             elif inspect.isclass(v):
                 t = v.__name__
             else:
                 t = f'{i}'
-            p['title'] = f'{title}{key.title()}{t}'
+            p['title'] = f'{title}{key}{t}'
             p[key] = v
             self.vary_params(p, vary)
 
@@ -57,15 +53,12 @@ class BaseSimulation(object):
     def monitor(self, solver):
         t  = float(solver.problem.t)
         dt = float(solver.problem.dt)
-        dudt  = norm(solver.du)/dt
-        dpdt  = norm(solver.dp)/dt
         eumax = norm(solver.eu.vector(), 'linf')
         epmax = norm(solver.ep.vector(), 'linf')
         eul2  = norm(solver.eu)
         epl2  = norm(solver.ep)
         euhd0 = norm(solver.eu, 'hdiv0')
         eph10 = norm(solver.ep, 'h10')
-        norms_text = '{:.3f}\t{:.10f}\t{:.10f}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}'.format(t, dudt, dpdt, eumax, epmax, eul2, epl2, euhd0, eph10)
+        norms_text = '{:.3f}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}'.format(t, eumax, epmax, eul2, epl2, euhd0, eph10)
         self.norms.write(norms_text + '\n')
         print(norms_text)
-        return solver.problem.stationary and (dudt < self.dudtmin or dudt > self.dudtmax)

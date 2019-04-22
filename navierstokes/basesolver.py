@@ -16,6 +16,8 @@ class Preconditioner(Enum):
 
 class BaseSolver(object):
     defaults = dict(
+        dudtmin = 1e-9,
+        dudtmax = 1e+5,
         linear_solver = LinearSolver.default,
         preconditioner = Preconditioner.default,
     )
@@ -85,7 +87,13 @@ class BaseSolver(object):
             feu.write(self.eu, t)
             fep.write(self.ep, t)
 
-            if self.monitor is not None and self.monitor(self):
+            if hasattr(self, 'monitor'):
+                self.monitor(self)
+
+            dudt = norm(self.du)/dt
+            dpdt = norm(self.dp)/dt
+            print('{:.3f}\t{:.10f}\t{:.10f}'.format(t, dudt, dpdt))
+            if problem.stationary and (dudt < self.dudtmin or dudt > self.dudtmax):
                 break
         print(f'# compute time: {compute_time}')
 

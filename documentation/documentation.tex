@@ -6,6 +6,7 @@
 \usepackage{amsfonts}
 \usepackage{bm}
 \usepackage{tikz}
+\usepackage{float}
 \usepackage{pgfplots}
 \usepackage{algorithm}
 \usepackage{listings}
@@ -61,7 +62,7 @@
 
 
 \subsection{Граничные условия}
-Обозначим границы где задаются условия Дирихле для скорости через $\Gamma_D$, а с условиями Неймана -- $\Gamma_N$. Для задач течения жидкости стандартными являются следующие граничные условия
+Обозначим границы где задаются условия Дирихле для скорости через $\Gamma_d$, а с условиями Неймана -- $\Gamma_N$. Для задач течения жидкости стандартными являются следующие граничные условия
 \begin{itemize}
 \item условие прилипания (noslip condition) $\bm{u}(\bm{x}, t) = (0, 0)$;
 \item условие скольжения или симметрии (slip condition) $\bm{u} \cdot \bm{n} = 0$;
@@ -134,17 +135,6 @@ F = \int_\Omega \rho \,\mathcal{C}(\bm{u}) \cdot \bm{v} \;{\rm d}\bm{x}
 ...
 
 \subsection{Тестовые задачи (для демонстрации сходимости в зависимости от вычислительных параметров, ...)}
-...
-
-
-\begin{figure}
-\centering
-\includegraphics[width=0.49\linewidth]{shifted-vortex/u.png}
-\includegraphics[width=0.49\linewidth]{shifted-vortex/p.png}
-\label{fig:shifted-vortex}
-\caption{Поле скорости и распределение давления}
-\end{figure}
-
 Рассмотрим стационарную задачу в единичном квадрате $\Omega=(0,1)^2$ с точным решением
 \begin{equation}
 \begin{gathered}
@@ -153,19 +143,38 @@ F = \int_\Omega \rho \,\mathcal{C}(\bm{u}) \cdot \bm{v} \;{\rm d}\bm{x}
 p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^2 - x_2)) \\
 + 2 x_1 (-228 + (x_2^2 - x_2)) + 2 x_1^3 (-36 + x_2^2 - x_2)) + x_1^4 (12 + (x_2^2 - x_2))))).
 \end{gathered}
-\label{eq:shifted-vortex}
+\label{eq:shiftedvortex}
 \end{equation}
+Граничное и дополнительное условия
+\[
+    \bm{u} = \bm{u}_e, \quad \bm{x} \in \partial \Omega, \quad \int_\Omega p \,{\rm d}\bm{x} = 0.
+\]
 Возьмем следующие параметры модели
 \[
 \rho = 1, \quad \mu = 0.01, \quad \bm{f} = \rho \,\mathcal{C}(\bm{u}_e) - \nabla \cdot \epsilon(\bm{u}_e, p_e).
 \]
-На рис. \ref{fig:shifted-vortex-u}, \ref{fig:shifted-vortex-p} показаны точные решения задачи.
-%\begin{figure}[h]
-%\centering
-%\includegraphics[width=1.0\linewidth]{shifted-vortex/mesh.png}
-%\label{fig:mesh8}
-%\caption{Вычислительная сетка $8 \times 8$}
-%\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{shiftedvortex/u.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{shiftedvortex/p.png}
+    \end{minipage}
+    \label{fig:shiftedvortex}
+    \caption{Поле скорости и распределение давления}
+\end{figure}
+    
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{shiftedvortex/eu.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{shiftedvortex/ep.png}
+    \end{minipage}
+    \label{fig:shiftedvortex-error}
+    \caption{Погрешности скорости и давления}
+\end{figure}
 
 \subsection{Сходимость аппроксимации по пространству}
 
@@ -181,7 +190,7 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
 \left\Vert p - p_e \right\Vert_{H^1_0}.
 \]
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}[scale=1]
 \begin{axis}[
@@ -191,18 +200,19 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
     xlabel=$N$,
     grid=major,
     legend pos=north east]
-    \addplot[mark=*,solid] table[y=eul2]{shifted-vortex/meshes.txt};
-    \addplot[mark=*,dashed] table[y=eumax]{shifted-vortex/meshes.txt};
-    \addplot[mark=*,dotted] table[y=euhd0]{shifted-vortex/meshes.txt};
+    \addplot[mark=*,solid] table[y=eul2]{shiftedvortex/meshes.txt};
+    \addplot[mark=*,dashed] table[y=eumax]{shiftedvortex/meshes.txt};
+    \addplot[mark=*,dotted] table[y=euhd0]{shiftedvortex/meshes.txt};
     \addlegendentry{$L^2$}
     \addlegendentry{$L^\infty$}
     \addlegendentry{$H^{div}_0$}
 \end{axis}
 \end{tikzpicture}
 \caption{Зависимость нормы погрешности скорости от размера сетки $N \times N$}
-\label{fig:shifted-vortex-meshes-u}
+\label{fig:shiftedvortex-meshes-u}
 \end{figure}
-\begin{figure}[h]
+
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}[scale=1]
 \begin{axis}[
@@ -212,23 +222,23 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
     xlabel=$N$,
     grid=major,
     legend pos=north east]
-    \addplot[mark=*,solid] table[y=epl2]{shifted-vortex/meshes.txt};
-    \addplot[mark=*,dashed] table[y=epmax]{shifted-vortex/meshes.txt};
-    \addplot[mark=*,dotted] table[y=eph10]{shifted-vortex/meshes.txt};
+    \addplot[mark=*,solid] table[y=epl2]{shiftedvortex/meshes.txt};
+    \addplot[mark=*,dashed] table[y=epmax]{shiftedvortex/meshes.txt};
+    \addplot[mark=*,dotted] table[y=eph10]{shiftedvortex/meshes.txt};
     \addlegendentry{$L^2$}
     \addlegendentry{$L^\infty$}
     \addlegendentry{$H^1_0$}
 \end{axis}
 \end{tikzpicture}
 \caption{Зависимость нормы погрешности давления от размера сетки $N \times N$}
-\label{fig:shifted-vortex-meshes-p}
+\label{fig:shiftedvortex-meshes-p}
 \end{figure}
 
 \subsection{Прямые линейные решатели}
 
 Из сравнения прямых решателей (см. рис. \ref{fig:direct-solvers}) наилучшее время показал MUMPS, который имеет параллельное решение системы. На рис. \ref{fig:mumps-parallel} приводится сравнение времени параллельного решения решателем MUMPS для вычислительных сеток $128\times128$ и $256\times256$.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}[scale=1]
 \begin{axis}[
@@ -238,10 +248,10 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
     xlabel=$N$,
     grid=major,
     legend pos=north west]
-    \addplot[mark=*,solid] table[y=mumps]{shifted-vortex/direct-solvers.txt};
-    \addplot[mark=*,dashed] table[y=petsc]{shifted-vortex/direct-solvers.txt};
-    \addplot[mark=*,dashdotted] table[y=umfpack]{shifted-vortex/direct-solvers.txt};
-    \addplot[mark=*,dotted] table[y=superlu]{shifted-vortex/direct-solvers.txt};
+    \addplot[mark=*,solid] table[y=mumps]{shiftedvortex/direct-solvers.txt};
+    \addplot[mark=*,dashed] table[y=petsc]{shiftedvortex/direct-solvers.txt};
+    \addplot[mark=*,dashdotted] table[y=umfpack]{shiftedvortex/direct-solvers.txt};
+    \addplot[mark=*,dotted] table[y=superlu]{shiftedvortex/direct-solvers.txt};
     \addlegendentry{MUMPS}
     \addlegendentry{PETSc}
     \addlegendentry{UMFPack}
@@ -251,27 +261,6 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
 \caption{Время решения прямых решателей от размера сетки $N \times N$}
 \label{fig:direct-solvers}
 \end{figure}
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[scale=1]
-\begin{axis}[
-	xmode=log,
-	ymode=log,
-    ylabel={$t, s$},
-    xlabel=$P$,
-    grid=major,
-    legend pos=north east]
-    \addplot[mark=*,solid] table[y=N128]{shifted-vortex/mumps-parallel.txt};
-    \addplot[mark=*,dashed] table[y=N256]{shifted-vortex/mumps-parallel.txt};
-    \addplot[mark=*,dotted] table[y=N512]{shifted-vortex/mumps-parallel.txt};
-    \addlegendentry{$N=128$}
-    \addlegendentry{$N=256$}
-    \addlegendentry{$N=512$}
-\end{axis}
-\end{tikzpicture}
-\caption{Время решения решателя MUMPS от количества процессов $P$}
-\label{fig:mumps-parallel}
-\end{figure}
 
 \subsection{Итерационные линейные решатели}
 ...
@@ -280,9 +269,31 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
 ...
 
 \subsection{Результаты по параллелизации}
-...
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=1]
+    \begin{axis}[
+        xmode=log,
+        ymode=log,
+        ylabel={$t, s$},
+        xlabel=$P$,
+        grid=major,
+        legend pos=north east]
+        \addplot[mark=*,solid] table[y=N128]{shiftedvortex/mumps-parallel.txt};
+        \addplot[mark=*,dashed] table[y=N256]{shiftedvortex/mumps-parallel.txt};
+        \addplot[mark=*,dotted] table[y=N512]{shiftedvortex/mumps-parallel.txt};
+        \addlegendentry{$N=128$}
+        \addlegendentry{$N=256$}
+        \addlegendentry{$N=512$}
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Время решения решателя MUMPS от количества процессов $P$}
+    \label{fig:mumps-parallel}
+\end{figure}
 
 
+\pagebreak
 \section{Верификация ПО}
 ...
 
@@ -290,8 +301,195 @@ p_e = 10 (-424 + 156 e + (x_2^2-x_2) (-456 + e^x_1) (456 + x_1^2) (228 - 5 (x_2^
 ...
 
 \subsection{Задача 1}
-...
+Рассмотрим течение Пуазейля в единичном квадрате. 
+Будем использовать следующее точное решение, которое описывает лиминарное течение между двумя пластинами
+\[
+    \bm{u}_e = \left(0.5/\mu x_1 (1-x_1), 0 \right), \quad
+    p_e = 1-x_0,
+\]
+Сверху и снизу области находятся пластины (твердые стенки), слева и справа задаем давления. Граничные условия будут следующими
+\[
+    \bm{u} = (0, 0), \quad x_1 = 0, 1, \quad 
+    p = 1, \quad x_0 = 0, \quad 
+    p = 0, \quad x_0 = 1.
+\]
+Параметры модели 
+\[
+    \rho=1, \quad \mu = 1, \quad \bm{f}= \rho \,\mathcal{C}(\bm{u}_e) - \nabla \cdot \epsilon(\bm{u}_e, p_e).
+\]
 
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{poiseuilleflow/u.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{poiseuilleflow/p.png}
+    \end{minipage}
+    \label{fig:poiseuilleflow}
+    \caption{Поле скорости и распределение давления}
+\end{figure}
+    
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{poiseuilleflow/eu.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{poiseuilleflow/ep.png}
+    \end{minipage}
+    \label{fig:poiseuilleflow-error}
+    \caption{Погрешности скорости и давления}
+\end{figure}
+
+
+\subsection{Задача 2}
+
+Рассмотрим другую задачу в единичном квадрате, которая называется течением Лукаса. Точное решение 
+\[
+    \bm{u}_e = (-\cos(\pi x_0)/\pi, -x_1 \sin(\pi x_0)), \quad
+    p_e = 0.
+\]
+Граничные и дополнительные условия
+\[
+    \bm{u} = \bm{u}_e, \quad \bm{x} \in \partial \Omega, \quad \int_\Omega p \,{\rm d}\bm{x} = 0.
+\]
+Параметры модели 
+\[
+    \rho=1, \quad \mu = 1, \quad \bm{f}=\rho \,\mathcal{C}(\bm{u}_e) - \nabla \cdot \epsilon(\bm{u}_e, p_e).
+\]
+
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{lucasflow/u.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{lucasflow/p.png}
+    \end{minipage}
+    \label{fig:lucasflow}
+    \caption{Поле скорости и распределение давления}
+\end{figure}
+    
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{lucasflow/eu.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{lucasflow/ep.png}
+    \end{minipage}
+    \label{fig:lucasflow-error}
+    \caption{Погрешности скорости и давления}
+\end{figure}
+
+\subsection{Задача 3}
+
+Рассмотрим задачу в единичном квадрате с центром в начале координат $\Omega = (-0.5, 0.5)^2$. Данное точное решение называется вихрем Тейлора 
+\[
+    \bm{u}_e = \left(-\cos(\pi x_0) \sin(\pi x_1), \sin(\pi x_0) \cos(\pi x_1)\right),
+\]
+\[
+    p_e = -\rho/4 (\cos(2 \pi x_0) + \cos(2 \pi x_1)).
+\]
+Граничные и дополнительные условия
+\[
+    \bm{u} = \bm{u}_e, \quad \bm{x} \in \partial \Omega, \quad \int_\Omega p \,{\rm d}\bm{x} = 0.
+\]
+Параметры модели 
+\[
+    \rho=1, \quad \mu = 1, \quad \bm{f}=\rho \,\mathcal{C}(\bm{u}_e) - \nabla \cdot \epsilon(\bm{u}_e, p_e).
+\]
+
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{taylorvortex/u.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{taylorvortex/p.png}
+    \end{minipage}
+    \label{fig:taylorvortex}
+    \caption{Поле скорости и распределение давления}
+\end{figure}
+    
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{taylorvortex/eu.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{taylorvortex/ep.png}
+    \end{minipage}
+    \label{fig:taylorvortex-error}
+    \caption{Погрешности скорости и давления}
+\end{figure}
+
+
+\subsection{Задача 4}
+
+Рассмотрим задачу в единичном квадрате без точного решения. Снизу и слева расположены твердые стенки
+\[
+    \bm{u} = (0, 0), \quad x_0 = 0, \quad \bm{u} = (0, 0), \quad x_1 = 0,
+\]
+сверху задаем профиль скорости
+\[
+    \bm{u} = \left(0, -\sin(\pi (x_0^3 - 3 x_0^2 + 3 x_0))\right), \quad x_1 = 1,
+\]
+а справа условие на выходе
+\[
+    \nabla \bm{u} \cdot \bm{n} = 0, \quad x_0 = 1.
+\]
+Также добавляем дополнительное условие для давления
+\[
+    \int_\Omega p \,{\rm d}\bm{x} = 0.
+\]
+Параметры модели 
+\[
+    \rho=1, \quad \mu = 1, \quad \bm{f}=(0, 0).
+\]
+
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{kanflow/u.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{kanflow/p.png}
+    \end{minipage}
+    \label{fig:kanflow}
+    \caption{Поле скорости и распределение давления}
+\end{figure}
+    
+
+\subsection{Задача 5}
+
+Рассмотрим задачу течения в канале с длиной $L=1$ и высотой широкой части $H=0.4$. Слева расположена узкая часть канала с высотой $h=0.2$, где задаем граничное условие на входе
+\[
+    \bm{u} = \left( (h - x_1) (h + x_1)/h^2, 0 \right), \quad x_0 = 0.
+\]
+На нижней границе задаем условие симметрии или по другому скольжения
+\[
+    \bm{u}_1 = 0, \quad x_1 = 0.
+\]
+Справа определяем условие на выходе
+\[
+    \nabla \bm(u) \cdot \bm{n} = (0, 0), \quad x_0 = L, \quad
+    p = 0, \quad x_0 = L.
+\]
+Оставщуюйся верхнюю часть границы обозначим через $\Gamma_t$ и задаем условие твердой стенки
+\[
+    \bm{u} = (0, 0), \quad \bm{x} \in \Gamma_t.
+\]
+Параметры модели 
+\[
+    \rho=1, \quad \mu = 1, \quad \bm{f}=(0, 0).
+\]
+
+\begin{figure}[H]
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{channelflow/u.png}
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+        \includegraphics[height=0.75\linewidth]{channelflow/p.png}
+    \end{minipage}
+    \label{fig:channelflow}
+    \caption{Поле скорости и распределение давления}
+\end{figure}
+ 
 
 %\bibliographystyle{unsrt}
 %\bibliography{literature}
